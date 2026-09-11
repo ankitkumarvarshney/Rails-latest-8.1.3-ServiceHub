@@ -37,3 +37,7 @@ bundle exec rspec
 ```
 ## Screenshot
 <img width="1000" height="7022" alt="landing page" src="https://github.com/user-attachments/assets/f1d60f91-3b68-496d-b56a-cca8308e2564" />
+<img width="1357" height="662" alt="Screenshot 2026-09-11 235433" src="https://github.com/user-attachments/assets/90589cd7-4892-4051-a1d0-966257f35a3d" />
+
+<img width="1316" height="659" alt="Screenshot 2026-09-11 235928" src="https://github.com/user-attachments/assets/13e548e4-98fd-4b8e-88a9-db8516cf1f0e" />
+
