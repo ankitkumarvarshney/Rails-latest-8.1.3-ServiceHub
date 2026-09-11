@@ -8,9 +8,9 @@
       "RSpec"
     ],
     "project_name": "Service hub",
-    "timestamp": "2026-09-11T15:34:56.556+00:00",
+    "timestamp": "2026-09-11T18:18:43.528+00:00",
     "root": "/home/win10/projects/service_hub",
-    "commit": null,
+    "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
     "primary_coverage": "line",
     "line_coverage": true,
     "branch_coverage": false,
@@ -18,12 +18,12 @@
   },
   "total": {
     "lines": {
-      "covered": 225,
-      "missed": 57,
-      "omitted": 138,
-      "total": 282,
-      "percent": 79.7872340425532,
-      "strength": 1.7872340425531914
+      "covered": 231,
+      "missed": 62,
+      "omitted": 169,
+      "total": 293,
+      "percent": 78.839590443686,
+      "strength": 1.7235494880546076
     }
   },
   "coverage": {
@@ -213,52 +213,85 @@
       "source": [
         "class AvailabilitySlotsController < ApplicationController",
         "  before_action :require_provider",
-        "  def index; @slots = current_user.provider_profile.availability_slots.order(:day_of_week, :starts_at); end",
-        "  def new; @slot = current_user.provider_profile.availability_slots.build; end",
+        "",
+        "  def index",
+        "   @slots = current_user.provider_profile.availability_slots.order(:day_of_week, :starts_at)",
+        "  end",
+        "",
+        "  def new",
+        "    @slot = current_user.provider_profile.availability_slots.build",
+        "  end",
+        "",
         "  def create",
         "    @slot = current_user.provider_profile.availability_slots.build(slot_params)",
         "    @slot.save ? redirect_to(availability_slots_path, notice: \"Availability added.\") : render(:new, status: :unprocessable_entity)",
         "  end",
-        "  def edit; @slot = current_user.provider_profile.availability_slots.find(params[:id]); end",
+        "",
+        "  def edit",
+        "    @slot = current_user.provider_profile.availability_slots.find(params[:id])",
+        "  end",
+        "",
         "  def update",
         "    @slot = current_user.provider_profile.availability_slots.find(params[:id])",
         "    @slot.update(slot_params) ? redirect_to(availability_slots_path, notice: \"Availability updated.\") : render(:edit, status: :unprocessable_entity)",
         "  end",
-        "  def destroy; current_user.provider_profile.availability_slots.find(params[:id]).destroy; redirect_to availability_slots_path, notice: \"Availability removed.\"; end",
+        "  def destroy",
+        "    current_user.provider_profile.availability_slots.find(params[:id]).destroy; redirect_to availability_slots_path, notice: \"Availability removed.\"",
+        "  end",
+        "",
         "  private",
-        "  def slot_params; params.require(:availability_slot).permit(:day_of_week, :starts_at, :ends_at); end",
+        "  def slot_params",
+        "    params.require(:availability_slot).permit(:day_of_week, :starts_at, :ends_at)",
+        "  end",
         "end"
       ],
       "lines": [
         0,
         0,
+        null,
         0,
         0,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null,
+        0,
+        0,
+        0,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null,
         0,
         0,
         0,
         null,
         0,
         0,
-        0,
-        0,
+        null,
         null,
         0,
         0,
         0,
+        null,
         null
       ],
       "lines_covered_percent": 0.0,
       "covered_lines": 0,
-      "missed_lines": 14,
-      "omitted_lines": 3,
-      "total_lines": 14
+      "missed_lines": 19,
+      "omitted_lines": 14,
+      "total_lines": 19
     },
     "app/controllers/bookings_controller.rb": {
       "source": [
         "class BookingsController < ApplicationController",
         "  before_action :require_login",
         "  before_action :set_booking, only: %i[show confirm cancel complete]",
+        "",
         "  def index",
         "    @bookings = if provider?",
         "      Booking.joins(:service).where(services: { provider_profile_id: current_user.provider_profile.id }).includes(:user, service: :category).order(start_time: :desc)",
@@ -266,12 +299,15 @@
         "      current_user.bookings.includes(service: [ :category, provider_profile: :user ]).order(start_time: :desc)",
         "    end",
         "  end",
+        "",
         "  def show; end",
+        "",
         "  def new",
         "    redirect_to root_path, alert: \"Only customers can make bookings.\" and return unless current_user.customer?",
         "    @service = Service.visible.find(params[:service_id])",
         "    @booking = @service.bookings.build",
         "  end",
+        "",
         "  def create",
         "    redirect_to root_path, alert: \"Only customers can make bookings.\" and return unless current_user.customer?",
         "    @service = Service.visible.find(params[:service_id])",
@@ -286,27 +322,37 @@
         "  rescue ActiveRecord::RecordInvalid",
         "    render :new, status: :unprocessable_entity",
         "  end",
+        "",
         "  def confirm",
         "    return unless authorize_provider!",
         "    return redirect_to(bookings_path, alert: \"Only pending bookings can be confirmed.\") unless @booking.pending?",
         "    @booking.confirm!",
         "    redirect_to bookings_path, notice: \"Booking confirmed.\"",
         "  end",
+        "",
         "  def cancel",
         "    return unless authorize_participant!",
         "    return redirect_to(bookings_path, alert: \"Completed or already cancelled bookings cannot be cancelled.\") if @booking.completed? || @booking.cancelled?",
         "    @booking.cancel!(cancelled_by: current_user)",
         "    redirect_to bookings_path, notice: \"Booking cancelled.\"",
         "  end",
+        "",
         "  def complete",
         "    return unless authorize_provider!",
         "    return redirect_to(bookings_path, alert: \"Only confirmed bookings can be completed.\") unless @booking.confirmed?",
         "    @booking.complete!",
         "    redirect_to bookings_path, notice: \"Booking completed.\"",
         "  end",
+        "",
         "  private",
-        "  def set_booking; @booking = Booking.includes(:user, service: { provider_profile: :user }).find(params[:id]); end",
-        "  def booking_params; params.require(:booking).permit(:start_time, :customer_note); end",
+        "  def set_booking",
+        "     @booking = Booking.includes(:user, service: { provider_profile: :user }).find(params[:id])",
+        "  end",
+        "",
+        "  def booking_params",
+        "    params.require(:booking).permit(:start_time, :customer_note)",
+        "   end",
+        "",
         "  def authorize_provider!",
         "    return true if admin? || (provider? && @booking.provider_profile == current_user.provider_profile)",
         "",
@@ -326,44 +372,37 @@
         1,
         1,
         1,
-        1,
-        0,
-        0,
-        null,
-        0,
-        null,
-        null,
-        1,
-        1,
-        1,
-        1,
-        1,
-        null,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        null,
-        1,
-        null,
-        0,
-        null,
-        1,
-        1,
-        1,
-        1,
-        1,
         null,
         1,
         0,
         0,
+        null,
         0,
+        null,
+        null,
+        null,
+        1,
+        null,
+        1,
+        1,
+        1,
+        1,
+        null,
+        null,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        null,
+        1,
+        null,
         0,
+        null,
         null,
         1,
         1,
@@ -371,9 +410,30 @@
         1,
         1,
         null,
+        null,
         1,
-        3,
-        3,
+        0,
+        0,
+        0,
+        0,
+        null,
+        null,
+        1,
+        1,
+        1,
+        1,
+        1,
+        null,
+        null,
+        1,
+        1,
+        2,
+        null,
+        null,
+        1,
+        2,
+        null,
+        null,
         1,
         2,
         null,
@@ -389,37 +449,52 @@
         null,
         null
       ],
-      "lines_covered_percent": 73.46938775510205,
-      "covered_lines": 36,
+      "lines_covered_percent": 74.50980392156863,
+      "covered_lines": 38,
       "missed_lines": 13,
-      "omitted_lines": 16,
-      "total_lines": 49
+      "omitted_lines": 28,
+      "total_lines": 51
     },
     "app/controllers/notifications_controller.rb": {
       "source": [
         "class NotificationsController < ApplicationController",
         "  before_action :require_login",
-        "  def index; @notifications = current_user.notifications.order(created_at: :desc); end",
-        "  def mark_all_read; current_user.notifications.unread.update_all(read_at: Time.current); redirect_to notifications_path, notice: \"Notifications marked as read.\"; end",
+        "  def index",
+        "    @notifications = current_user.notifications.order(created_at: :desc)",
+        "  end",
+        "",
+        "  def mark_all_read",
+        "    current_user.notifications.unread.update_all(read_at: Time.current)",
+        "    redirect_to notifications_path, notice: \"Notifications marked as read.\"",
+        "  end",
         "end"
       ],
       "lines": [
         1,
         1,
-        2,
-        2,
+        1,
+        1,
+        null,
+        null,
+        1,
+        1,
+        1,
+        null,
         null
       ],
       "lines_covered_percent": 100.0,
-      "covered_lines": 4,
+      "covered_lines": 7,
       "missed_lines": 0,
-      "omitted_lines": 1,
-      "total_lines": 4
+      "omitted_lines": 4,
+      "total_lines": 7
     },
     "app/controllers/registrations_controller.rb": {
       "source": [
         "class RegistrationsController < ApplicationController",
-        "  def new; @user = User.new; end",
+        "  def new",
+        "    @user = User.new",
+        "  end",
+        "",
         "  def create",
         "    @user = User.new(user_params)",
         "    if @user.save",
@@ -429,6 +504,7 @@
         "      render :new, status: :unprocessable_entity",
         "    end",
         "  end",
+        "",
         "  private",
         "  def user_params",
         "    params.require(:user).permit(:name, :email, :password, :password_confirmation, :role, :business_name).tap do |permitted|",
@@ -439,7 +515,10 @@
       ],
       "lines": [
         1,
-        2,
+        1,
+        1,
+        null,
+        null,
         1,
         1,
         1,
@@ -447,6 +526,7 @@
         1,
         null,
         0,
+        null,
         null,
         null,
         1,
@@ -457,11 +537,11 @@
         null,
         null
       ],
-      "lines_covered_percent": 91.66666666666667,
-      "covered_lines": 11,
+      "lines_covered_percent": 92.3076923076923,
+      "covered_lines": 12,
       "missed_lines": 1,
-      "omitted_lines": 6,
-      "total_lines": 12
+      "omitted_lines": 9,
+      "total_lines": 13
     },
     "app/controllers/reviews_controller.rb": {
       "source": [
@@ -581,6 +661,7 @@
       "source": [
         "class SessionsController < ApplicationController",
         "  def new; end",
+        "",
         "  def create",
         "    user = User.find_by(email: params[:email].to_s.downcase)",
         "    if user&.authenticate(params[:password])",
@@ -591,6 +672,7 @@
         "      render :new, status: :unprocessable_entity",
         "    end",
         "  end",
+        "",
         "  def destroy",
         "    reset_session",
         "    redirect_to root_path, notice: \"You have been signed out.\"",
@@ -600,6 +682,7 @@
       "lines": [
         1,
         1,
+        null,
         1,
         6,
         6,
@@ -608,6 +691,7 @@
         null,
         1,
         1,
+        null,
         null,
         null,
         1,
@@ -619,7 +703,7 @@
       "lines_covered_percent": 100.0,
       "covered_lines": 12,
       "missed_lines": 0,
-      "omitted_lines": 5,
+      "omitted_lines": 7,
       "total_lines": 12
     },
     "app/helpers/application_helper.rb": {
@@ -1157,12 +1241,12 @@
   "groups": {
     "Controllers": {
       "lines": {
-        "covered": 111,
-        "missed": 53,
-        "omitted": 62,
-        "total": 164,
-        "percent": 67.6829268292683,
-        "strength": 1.2865853658536586
+        "covered": 117,
+        "missed": 58,
+        "omitted": 93,
+        "total": 175,
+        "percent": 66.85714285714286,
+        "strength": 1.2114285714285715
       },
       "files": [
         "app/controllers/admin/bookings_controller.rb",
@@ -1275,5 +1359,919 @@
       "files": []
     }
   },
-  "errors": {}
+  "errors": {},
+  "history": [
+    {
+      "created_at": "2026-09-11T15:34:56Z",
+      "branch": null,
+      "commit": null,
+      "totals": {
+        "line": 79.78
+      },
+      "groups": {
+        "Controllers": {
+          "line": 67.68
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 0.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 73.46
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 91.66
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 0.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    },
+    {
+      "created_at": "2026-09-11T18:11:26Z",
+      "branch": "main",
+      "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
+      "totals": {
+        "line": 78.83
+      },
+      "groups": {
+        "Controllers": {
+          "line": 66.85
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 0.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 74.5
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 92.3
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 0.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    },
+    {
+      "created_at": "2026-09-11T18:14:27Z",
+      "branch": "main",
+      "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
+      "totals": {
+        "line": 78.83
+      },
+      "groups": {
+        "Controllers": {
+          "line": 66.85
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 0.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 74.5
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 92.3
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 0.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    },
+    {
+      "created_at": "2026-09-11T18:14:41Z",
+      "branch": "main",
+      "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
+      "totals": {
+        "line": 89.07
+      },
+      "groups": {
+        "Controllers": {
+          "line": 82.28
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 100.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 60.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 52.63
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 74.5
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 92.3
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 100.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    },
+    {
+      "created_at": "2026-09-11T18:16:00Z",
+      "branch": "main",
+      "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
+      "totals": {
+        "line": 78.83
+      },
+      "groups": {
+        "Controllers": {
+          "line": 66.85
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 0.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 74.5
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 92.3
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 0.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    },
+    {
+      "created_at": "2026-09-11T18:16:59Z",
+      "branch": "main",
+      "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
+      "totals": {
+        "line": 89.07
+      },
+      "groups": {
+        "Controllers": {
+          "line": 82.28
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 100.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 60.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 52.63
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 74.5
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 92.3
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 100.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    },
+    {
+      "created_at": "2026-09-11T18:17:17Z",
+      "branch": "main",
+      "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
+      "totals": {
+        "line": 78.83
+      },
+      "groups": {
+        "Controllers": {
+          "line": 66.85
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 0.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 74.5
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 92.3
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 0.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    },
+    {
+      "created_at": "2026-09-11T18:18:43Z",
+      "branch": "main",
+      "commit": "ac54924ba2e3e7de15dca4065877d45dd2c199c1",
+      "totals": {
+        "line": 78.83
+      },
+      "groups": {
+        "Controllers": {
+          "line": 66.85
+        },
+        "Channels": {
+          "line": 100.0
+        },
+        "Models": {
+          "line": 99.07
+        },
+        "Mailers": {
+          "line": 0.0
+        },
+        "Helpers": {
+          "line": 100.0
+        },
+        "Views": {
+          "line": 100.0
+        },
+        "Jobs": {
+          "line": 100.0
+        },
+        "Libraries": {
+          "line": 100.0
+        }
+      },
+      "files": {
+        "app/controllers/admin/bookings_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/dashboard_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/reviews_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/services_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/admin/users_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/application_controller.rb": {
+          "line": 88.88
+        },
+        "app/controllers/availability_slots_controller.rb": {
+          "line": 0.0
+        },
+        "app/controllers/bookings_controller.rb": {
+          "line": 74.5
+        },
+        "app/controllers/notifications_controller.rb": {
+          "line": 100.0
+        },
+        "app/controllers/registrations_controller.rb": {
+          "line": 92.3
+        },
+        "app/controllers/reviews_controller.rb": {
+          "line": 81.81
+        },
+        "app/controllers/services_controller.rb": {
+          "line": 92.0
+        },
+        "app/controllers/sessions_controller.rb": {
+          "line": 100.0
+        },
+        "app/helpers/application_helper.rb": {
+          "line": 100.0
+        },
+        "app/jobs/application_job.rb": {
+          "line": 100.0
+        },
+        "app/jobs/upcoming_booking_reminder_job.rb": {
+          "line": 100.0
+        },
+        "app/mailers/application_mailer.rb": {
+          "line": 0.0
+        },
+        "app/models/application_record.rb": {
+          "line": 100.0
+        },
+        "app/models/availability_slot.rb": {
+          "line": 100.0
+        },
+        "app/models/booking.rb": {
+          "line": 97.72
+        },
+        "app/models/category.rb": {
+          "line": 100.0
+        },
+        "app/models/notification.rb": {
+          "line": 100.0
+        },
+        "app/models/provider_profile.rb": {
+          "line": 100.0
+        },
+        "app/models/review.rb": {
+          "line": 100.0
+        },
+        "app/models/service.rb": {
+          "line": 100.0
+        },
+        "app/models/user.rb": {
+          "line": 100.0
+        }
+      }
+    }
+  ]
 }

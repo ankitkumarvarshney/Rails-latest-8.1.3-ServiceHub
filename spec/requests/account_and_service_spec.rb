@@ -10,7 +10,7 @@ RSpec.describe "accounts and services" do
 
     delete session_path
     post session_path, params: { email: "new@example.test", password: "wrong" }
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
 
     post session_path, params: { email: "new@example.test", password: "password123" }
     expect(response).to redirect_to(root_path)

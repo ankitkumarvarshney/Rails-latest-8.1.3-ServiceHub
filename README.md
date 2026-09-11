@@ -33,7 +33,7 @@ Queue. It creates one reminder per confirmed appointment about a day ahead.
 
 ```sh
 bin/rails db:migrate
-bin/rails test
+bundle exec rspec
 ```
 ## Screenshot
 <img width="1000" height="7022" alt="landing page" src="https://github.com/user-attachments/assets/f1d60f91-3b68-496d-b56a-cca8308e2564" />

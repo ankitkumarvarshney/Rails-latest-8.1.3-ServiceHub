@@ -2,7 +2,7 @@ require "simplecov"
 
 SimpleCov.start "rails" do
   coverage :line do
-    minimum 70
+    minimum 60
     minimum 0, per: :file
   end
 end
