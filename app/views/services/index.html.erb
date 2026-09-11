@@ -1,0 +1,10 @@
+<% content_for :title, "Find a service · Service Hub" %>
+<section class="hero"><p class="eyebrow">BOOK WITH CONFIDENCE</p><h1>Make time for what matters.</h1><p>Trusted local professionals, straightforward booking.</p></section>
+<%= form_with url: services_path, method: :get, class: "filters" do |f| %>
+  <%= f.search_field :q, value: params[:q], placeholder: "What are you looking for?" %>
+  <%= f.select :category_id, @categories.map { |c| [c.name, c.id] }, { include_blank: "All categories", selected: params[:category_id] } %>
+  <%= f.submit "Search", class: "button" %>
+<% end %>
+<div class="section-heading"><h2>Available services</h2><span><%= @services.count %> results</span></div>
+<div class="cards"><% @services.each do |service| %><article class="card"><div class="category"><%= service.category.name %></div><h3><%= link_to service.name, service %></h3><p><%= truncate(service.description, length: 110) %></p><div class="card-footer"><span><%= service.provider_profile.business_name %><br>★ <%= service.average_rating %> service · ★ <%= service.provider_profile.average_rating %> provider</span><strong><%= number_to_currency service.price %><small> / <%= service.duration %> min</small></strong></div></article><% end %></div>
+<% if @services.empty? %><p class="empty">No services match your search yet.</p><% end %>

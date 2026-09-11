@@ -1,0 +1,1 @@
+<h1>Admin dashboard</h1><div class="stats"><% @stats.each do |label, value| %><div><span><%= label.to_s.humanize %></span><strong><%= label == :revenue ? number_to_currency(value) : value %></strong></div><% end %></div><h2>Recent bookings</h2><%= render "admin/bookings/table", bookings: @recent_bookings %>

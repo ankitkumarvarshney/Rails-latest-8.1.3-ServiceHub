@@ -1,0 +1,1 @@
+<h1>Reviews</h1><table><thead><tr><th>Service</th><th>Customer</th><th>Rating</th><th>Comment</th></tr></thead><tbody><% @reviews.each do |review| %><tr><td><%= review.booking.service.name %></td><td><%= review.user.name %></td><td>★ <%= review.rating %></td><td><%= review.comment %></td></tr><% end %></tbody></table>

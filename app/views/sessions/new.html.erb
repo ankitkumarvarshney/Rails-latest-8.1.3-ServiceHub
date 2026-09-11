@@ -1,0 +1,1 @@
+<div class="auth"><h1>Welcome back</h1><%= form_with url: session_path, class: "form" do |f| %><%= f.label :email %><%= f.email_field :email %><%= f.label :password %><%= f.password_field :password %><%= f.submit "Sign in", class: "button" %><% end %><p>New here? <%= link_to "Create an account", new_registration_path %>.</p></div>

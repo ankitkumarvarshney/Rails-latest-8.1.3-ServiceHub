@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Service Hub" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Service Hub">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%# CSRF tokens are included in regular Rails forms. These optional head helpers
+        are omitted because the installed Action View tag helper is incompatible. %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header class="site-header">
+      <%= link_to "ServiceHub", root_path, class: "brand" %>
+      <nav>
+        <%= link_to "Explore", services_path %>
+        <% if signed_in? %>
+          <%= link_to "Bookings", bookings_path %>
+          <% if provider? %><%= link_to "My services", new_service_path %><%= link_to "Availability", availability_slots_path %><% end %>
+          <% if admin? %><%= link_to "Admin", admin_root_path %><% end %>
+          <%= link_to "Notifications (#{current_user.notifications.unread.count})", notifications_path %>
+          <%= button_to "Sign out", session_path, method: :delete, class: "link-button" %>
+        <% else %>
+          <%= link_to "Sign in", new_session_path %><%= link_to "Join", new_registration_path, class: "button small" %>
+        <% end %>
+      </nav>
+    </header>
+    <main class="container">
+      <% flash.each { |type, message| %><div class="flash <%= type %>"><%= message %></div><% } %>
+      <%= yield %>
+    </main>
+  </body>
+</html>
